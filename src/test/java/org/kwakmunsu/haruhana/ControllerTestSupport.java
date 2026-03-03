@@ -20,6 +20,7 @@ import org.kwakmunsu.haruhana.domain.storage.service.StorageService;
 import org.kwakmunsu.haruhana.domain.streak.controller.StreakController;
 import org.kwakmunsu.haruhana.domain.streak.service.StreakService;
 import org.kwakmunsu.haruhana.domain.submission.service.SubmissionService;
+import org.kwakmunsu.haruhana.global.support.notification.ErrorNotificationSender;
 import org.kwakmunsu.haruhana.security.TestSecurityConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -80,5 +81,8 @@ public abstract class ControllerTestSupport {
 
     @MockitoBean
     protected StorageService storageService;
+
+    @MockitoBean
+    protected ErrorNotificationSender errorNotificationSender;
 
 }
