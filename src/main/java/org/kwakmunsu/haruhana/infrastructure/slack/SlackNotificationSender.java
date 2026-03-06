@@ -53,7 +53,7 @@ public class SlackNotificationSender implements ErrorNotificationSender {
         }
     }
 
-    private String buildPayload(String message, Throwable throwable) throws IOException {
+    String buildPayload(String message, Throwable throwable) throws IOException {
         String time = LocalDateTime.now().format(FORMATTER);
         String traceId = mdcOrDefault("traceId");
         String httpMethod = mdcOrDefault("httpMethod");

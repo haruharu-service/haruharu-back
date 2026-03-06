@@ -56,7 +56,7 @@ class SlackNotificationSenderTest extends UnitTestSupport {
         String payload = slackNotificationSender.buildPayload("메시지", null);
 
         // then: throwable이 null이면 스택 트레이스 대신 N/A가 payload에 포함되어야 한다
-        assertThat(payload).contains("N\\/A");
+        assertThat(payload).contains("N/A");
     }
 
     @Test
@@ -99,8 +99,7 @@ class SlackNotificationSenderTest extends UnitTestSupport {
         String payload = slackNotificationSender.buildPayload("MDC 없는 케이스", new IllegalStateException("상태 오류"));
 
         // then: traceId, httpMethod, requestUri, clientIp 모두 N/A로 대체되어야 한다
-        // N/A는 JSON 직렬화 시 N\/A 형태로 이스케이프됨
-        assertThat(payload).contains("N\\/A");
+        assertThat(payload).contains("N/A");
     }
 
 }
