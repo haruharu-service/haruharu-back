@@ -11,14 +11,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
-@Disabled
+/**
+ * 실제 Slack webhook 전송 테스트
+ * - 평소에는 @Disabled 로 CI/CD에서 실행 제외
+ * - 수동으로 확인하고 싶을 때 @Disabled 제거 후 실행
+ * - webhook URL은 application-test.yml의 slack.webhook.url 값을 사용
+ */
+@Disabled("수동 실행 전용: Slack 실제 전송 테스트")
 @ActiveProfiles("test")
 @SpringBootTest
-class SlackNotificationRealSendTest{
+class SlackNotificationRealSendTest {
 
     @Autowired
     private ErrorNotificationSender errorNotificationSender;
-
 
     @AfterEach
     void clearMdc() {
@@ -72,4 +77,23 @@ class SlackNotificationRealSendTest{
                 .pollDelay(2, TimeUnit.SECONDS)
                 .until(() -> true);
     }
+
+    @Test
+    void 실제_전송_JSON_특수문자가_포함된_메시지도_정상_전송된다() {
+        MDC.put("traceId", "real-trace-004");
+        MDC.put("httpMethod", "POST");
+        MDC.put("requestUri", "/api/data");
+        MDC.put("clientIp", "192.168.1.1");
+
+        // JSON 인젝션 취약점 검증: 따옴표, 백슬래시, 개행 포함
+        String dangerousMessage = "에러 \"발생\": \\path\\to\\file\n줄바꿈 포함 메시지";
+        RuntimeException exception = new RuntimeException("cause: \"quoted\" and \\backslash\\");
+
+        errorNotificationSender.sendErrorNotification(dangerousMessage, exception);
+
+        Awaitility.await().atMost(5, TimeUnit.SECONDS)
+                .pollDelay(2, TimeUnit.SECONDS)
+                .until(() -> true);
+    }
+
 }
