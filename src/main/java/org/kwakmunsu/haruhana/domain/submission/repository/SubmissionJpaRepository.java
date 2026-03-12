@@ -35,4 +35,10 @@ public interface SubmissionJpaRepository extends JpaRepository<Submission, Long>
     @Query("UPDATE Submission s SET s.status = :status, s.updatedAt = :now WHERE s.member.id = :memberId AND s.status = 'ACTIVE'")
     void softDeleteByMemberId(@Param("memberId") Long memberId, @Param("status") EntityStatus status, @Param("now") LocalDateTime now);
 
+    long countByDailyProblem_AssignedAtAndIsOnTimeAndStatus(
+            LocalDate assignedAt,
+            boolean isOnTime,
+            EntityStatus status
+    );
+
 }

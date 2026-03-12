@@ -25,9 +25,9 @@ public class TestSecurityConfig {
                         .requestMatchers("/v1/categories").permitAll()
                         .requestMatchers("/v1/auth/login", "/v1/auth/reissue").permitAll()
                         .requestMatchers("/v1/members/sign-up", "/v1/members/nickname", "/v1/members/login-id").permitAll()
-                        .requestMatchers("/actuator/**").permitAll()
+                        .requestMatchers("/actuator/health", "/actuator/info").permitAll()
                         .requestMatchers("/swagger/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                        .requestMatchers("/v1/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/v1/admin/**", "/actuator/**").hasRole("ADMIN")
                         .anyRequest().hasAnyRole("MEMBER", "ADMIN")
                 );
 

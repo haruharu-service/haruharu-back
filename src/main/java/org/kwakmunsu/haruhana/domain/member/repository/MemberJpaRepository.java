@@ -37,4 +37,6 @@ public interface MemberJpaRepository extends JpaRepository<Member, Long> {
             @Param("status") EntityStatus status
     );
 
+    long countAllByStatus(EntityStatus status);
+
 }

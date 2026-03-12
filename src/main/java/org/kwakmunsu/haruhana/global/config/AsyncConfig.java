@@ -3,11 +3,14 @@ package org.kwakmunsu.haruhana.global.config;
 import static org.springframework.boot.autoconfigure.task.TaskExecutionAutoConfiguration.APPLICATION_TASK_EXECUTOR_BEAN_NAME;
 
 import java.util.concurrent.Executor;
+import lombok.RequiredArgsConstructor;
 import org.kwakmunsu.haruhana.global.support.error.AsyncExceptionHandler;
 import org.kwakmunsu.haruhana.global.support.logging.MdcTaskDecorator;
+import org.kwakmunsu.haruhana.global.support.notification.ErrorNotificationSender;
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.AsyncConfigurer;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -22,8 +25,12 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
  * </ul>
  */
 @EnableAsync
+@RequiredArgsConstructor
 @Configuration
 public class AsyncConfig implements AsyncConfigurer {
+
+    @Lazy
+    private final ErrorNotificationSender errorNotificationSender;
 
     @Bean(name = APPLICATION_TASK_EXECUTOR_BEAN_NAME)
     public ThreadPoolTaskExecutor asyncTaskExecutor() {
@@ -45,7 +52,7 @@ public class AsyncConfig implements AsyncConfigurer {
 
     @Bean
     public AsyncExceptionHandler asyncExceptionHandler() {
-        return new AsyncExceptionHandler();
+        return new AsyncExceptionHandler(errorNotificationSender);
     }
 
     @Override

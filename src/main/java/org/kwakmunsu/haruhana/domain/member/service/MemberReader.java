@@ -38,6 +38,10 @@ public class MemberReader {
                 .orElseThrow(() -> new HaruHanaException(ErrorType.NOT_FOUND_MEMBER));
     }
 
+    public long countAll() {
+        return memberJpaRepository.countAllByStatus(EntityStatus.ACTIVE);
+    }
+
     /**
      * 특정 날짜 범위에 제출 기록이 없는 회원들을 조회합니다.
      *

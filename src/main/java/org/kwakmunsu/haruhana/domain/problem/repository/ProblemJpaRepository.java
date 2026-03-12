@@ -34,4 +34,5 @@ public interface ProblemJpaRepository extends JpaRepository<Problem, Long> {
             @Param("status") EntityStatus status
     );
 
+    long countByProblemAtAndStatus(LocalDate today, EntityStatus status);
 }

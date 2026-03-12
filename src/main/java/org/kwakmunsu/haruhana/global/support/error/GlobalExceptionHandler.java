@@ -4,7 +4,9 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import java.util.Map;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.kwakmunsu.haruhana.global.support.notification.ErrorNotificationSender;
 import org.kwakmunsu.haruhana.global.support.response.ApiResponse;
 import org.springframework.boot.logging.LogLevel;
 import org.springframework.http.ResponseEntity;
@@ -16,8 +18,11 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 @Slf4j
+@RequiredArgsConstructor
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    private final ErrorNotificationSender errorNotificationSender;
 
     @ExceptionHandler(HaruHanaException.class)
     public ResponseEntity<ApiResponse<?>> handleCustomException(HaruHanaException e) {
@@ -31,7 +36,10 @@ public class GlobalExceptionHandler {
         );
 
         switch (errorType.getLogLevel()) {
-            case LogLevel.ERROR -> log.error(logMessage);
+            case LogLevel.ERROR -> {
+                log.error(logMessage, e);
+                errorNotificationSender.sendErrorNotification(logMessage, e);
+            }
             case LogLevel.WARN ->  log.warn(logMessage);
             default ->             log.info(logMessage);
         }
@@ -44,6 +52,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<?>> handleException(Exception e) {
         log.error("[Exception]: {}", e.getMessage(), e);
+        errorNotificationSender.sendErrorNotification("[Exception]: " + e.getMessage(), e);
 
         ErrorType errorType = ErrorType.DEFAULT_ERROR;
 

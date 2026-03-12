@@ -1,5 +1,6 @@
 package org.kwakmunsu.haruhana.domain.submission.service;
 
+import java.time.LocalDate;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.kwakmunsu.haruhana.domain.submission.entity.Submission;
@@ -19,6 +20,15 @@ public class SubmissionReader {
                 dailyProblemId,
                 EntityStatus.ACTIVE
         );
+    }
+
+    public long countTodayOnTimeSubmissions() {
+        return submissionJpaRepository.countByDailyProblem_AssignedAtAndIsOnTimeAndStatus(
+                LocalDate.now(),
+                true,
+                EntityStatus.ACTIVE
+        );
+
     }
 
 }

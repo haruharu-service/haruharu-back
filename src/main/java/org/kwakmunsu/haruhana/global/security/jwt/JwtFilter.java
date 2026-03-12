@@ -10,51 +10,35 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.NonNull;
 import org.kwakmunsu.haruhana.global.support.error.ErrorType;
 import org.kwakmunsu.haruhana.global.support.response.ApiResponse;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 @Slf4j
 @RequiredArgsConstructor
 public class JwtFilter extends OncePerRequestFilter {
 
-    private static final List<String> EXCLUDE_PATHS = List.of(
-            "/", "/health","/actuator/**", "/error", "/v1/auth/**", "/test/**",
-            "/v1/members/sign-up", "/v1/members/nickname", "/v1/members/login-id", "/v1/categories",
-            "/swagger/**", "/swagger-ui/**", "/v3/api-docs/**"
-    );
-    private static final AntPathMatcher PATH_MATCHER = new AntPathMatcher();
-
     private final JwtProvider jwtProvider;
     private final ObjectMapper objectMapper;
 
     @Override
-    protected boolean shouldNotFilter(HttpServletRequest request) {
-        String path = request.getRequestURI();
-
-        return EXCLUDE_PATHS.stream()
-                .anyMatch(exclude -> PATH_MATCHER.match(exclude, path));
-    }
-
-    @Override
     protected void doFilterInternal(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            FilterChain filterChain
+            @NonNull HttpServletRequest request,
+            @NonNull HttpServletResponse response,
+            @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
         Optional<String> tokenOpt = getTokenFromHeader(request);
 
         // 토큰이 없는 경우
         if (tokenOpt.isEmpty()) {
-            sendErrorResponse(response, ErrorType.EMPTY_TOKEN);
+            filterChain.doFilter(request, response);
             return;
         }
 
