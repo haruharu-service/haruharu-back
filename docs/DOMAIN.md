@@ -39,7 +39,7 @@
 - 변경은 **다음날 자정(00:00)** 부터 적용된다.
 
 #### 오늘의 문제 풀이
-- 문제는 AI가 생성한다. 답변은 예시 형태로 제공된다.
+- 문제는 AI(Google Gemini)가 생성한다. 답변은 예시 형태로 제공된다.
   - 생성 실패 시 백업 문제가 제공된다.
 - **매일 자정(00:00)** 에 설정된 난이도와 카테고리에 맞는 문제가 제공된다.
 - 동일한 날짜 + 난이도 + 카테고리 조합에 대해 문제는 하나만 생성된다.
@@ -97,7 +97,7 @@
 - `login_id`              : 로그인 ID (최대 50자)
 - `password`              : 비밀번호 (암호화 저장)
 - `nickname`              : 닉네임 (최대 50자)
-- `role`                  : 회원 권한 (ROLE_GUEST / ROLE_MEMBER / ROLE_ADMIN)
+- `role`                  : 회원 권한 (ROLE_MEMBER / ROLE_ADMIN)
 - `last_login_at`         : 마지막 로그인 일시
 - `refresh_token`         : 리프레시 토큰 (해시 저장)
 - `profile_image_object_key` : 프로필 이미지 S3 Object Key
@@ -107,8 +107,7 @@
 - `nickname`은 유일해야 한다.
 - `password`는 암호화되어 저장된다.
 - `refresh_token`은 해시 처리되어 저장된다.
-- 회원 가입 후 권한은 ROLE_GUEST로 설정된다.
-- 오늘의 문제 설정을 완료하면 ROLE_MEMBER로 변경된다.
+- 회원 가입 후 권한은 ROLE_MEMBER로 설정된다.
 
 ---
 
@@ -157,7 +156,7 @@
 
 #### 규칙
 - 동일한 날짜 + 난이도 + 카테고리 토픽 조합에 대해 문제는 하나만 생성된다.
-- 문제는 AI가 생성한다. 답변은 예시 형태로 제공된다.
+- 문제는 AI(Google Gemini 2.0 Flash)가 생성한다. 답변은 예시 형태로 제공된다.
 - 생성 실패 시 백업 문제가 제공된다.
 - 매일 자정(00:00)에 설정된 난이도와 카테고리에 맞는 문제가 제공된다.
 
@@ -173,7 +172,7 @@
 - 설정 직후 오늘의 문제가 제공된다.
 - 회원은 동일 날짜에 하나의 오늘의 문제만 가질 수 있다.
 - 제출 완료 시 `is_solved`가 true로 변경된다.
-- 인덱스: `(member_id, assigned_at, is_solved)`
+- 인덱스: `idx_member_date (member_id, assigned_at)`
 
 ---
 
@@ -195,10 +194,10 @@
 
 ### STREAK (스트릭)
 - `member_id`       : 회원 ID (FK → MEMBER, unique)
-- `current_streak`  : 현재 스트릭 일수
-- `max_streak`      : 최대 스트릭 일수
+- `current_streak`  : 현재 스트릭 일수 (bigint)
+- `max_streak`      : 최대 스트릭 일수 (bigint)
 - `last_solved_at`  : 마지막으로 문제를 푼 날짜
-- `version`         : 낙관적 락(Optimistic Lock) 버전
+- `version`         : 낙관적 락(Optimistic Lock) 버전 (bigint)
 
 #### 규칙
 - 스트릭은 문제 제출이 성공적으로 완료된 시점에 갱신된다.
