@@ -6,6 +6,7 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import java.time.LocalDateTime;
 import java.util.Objects;
+import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -85,6 +86,12 @@ public class Member extends BaseEntity {
 
     public boolean hasMatchingNickname(String nickname) {
         return this.nickname.equals(nickname);
+    }
+
+    public void anonymize() {
+        String suffix = this.getId() + "_" + UUID.randomUUID().toString().substring(0, 8);
+        this.loginId = "deleted_" + suffix;
+        this.nickname = "deleted_" + suffix;
     }
 
     public void validatePassword(PasswordEncoder passwordEncoder, String targetPassword) {
