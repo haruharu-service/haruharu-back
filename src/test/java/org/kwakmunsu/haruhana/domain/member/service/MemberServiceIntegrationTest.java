@@ -94,6 +94,49 @@ class MemberServiceIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
+    void 회원_탈퇴_시_loginId와_nickname이_익명화된다() {
+        // given
+        var newProfile = MemberFixture.createNewProfile();
+        var newPreference = new NewPreference(categoryTopic.getId(), ProblemDifficulty.EASY);
+        Long memberId = memberService.createMember(newProfile, newPreference);
+
+        // when
+        memberService.withdraw(memberId);
+        entityManager.flush();
+        entityManager.clear();
+
+        // then
+        var withdrawnMember = memberJpaRepository.findById(memberId).orElseThrow();
+        assertThat(withdrawnMember.getLoginId()).startsWith("deleted_");
+        assertThat(withdrawnMember.getNickname()).startsWith("deleted_");
+        assertThat(withdrawnMember.getLoginId()).isNotEqualTo(MemberFixture.LOGIN_ID);
+        assertThat(withdrawnMember.getNickname()).isNotEqualTo(MemberFixture.NICKNAME);
+    }
+
+    @Test
+    void 탈퇴한_회원과_동일한_loginId와_nickname으로_재가입이_가능하다() {
+        // given - 첫 번째 회원 가입 후 탈퇴
+        var newProfile = MemberFixture.createNewProfile();
+        var newPreference = new NewPreference(categoryTopic.getId(), ProblemDifficulty.EASY);
+        Long firstMemberId = memberService.createMember(newProfile, newPreference);
+        memberService.withdraw(firstMemberId);
+        entityManager.flush();
+        entityManager.clear();
+
+        // when - 동일한 loginId, nickname으로 재가입
+        Long secondMemberId = memberService.createMember(newProfile, newPreference);
+        entityManager.flush();
+        entityManager.clear();
+
+        // then
+        assertThat(secondMemberId).isNotEqualTo(firstMemberId);
+        var secondMember = memberJpaRepository.findById(secondMemberId).orElseThrow();
+        assertThat(secondMember.getLoginId()).isEqualTo(MemberFixture.LOGIN_ID);
+        assertThat(secondMember.getNickname()).isEqualTo(MemberFixture.NICKNAME);
+        assertThat(secondMember.getStatus()).isEqualTo(EntityStatus.ACTIVE);
+    }
+
+    @Test
     void 회원가입_시_회원_학습_설정과_스트릭_생성_문제_생성에_성공한다() {
         // given
         var newProfile = MemberFixture.createNewProfile();

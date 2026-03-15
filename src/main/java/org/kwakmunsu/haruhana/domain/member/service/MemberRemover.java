@@ -48,6 +48,7 @@ public class MemberRemover {
         // 2. 회원 엔티티 상태 변경 후 즉시 flush
         //    이후 bulk UPDATE 쿼리들이 영속성 컨텍스트를 초기화하기 때문에,
         //    member 변경 사항을 DB에 먼저 반영해야 한다.
+        member.anonymize();  // nickname, loginId 익명화 (unique 충돌 방지)
         member.clearRefreshToken();
         member.delete();
         memberJpaRepository.saveAndFlush(member);
