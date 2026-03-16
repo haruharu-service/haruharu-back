@@ -61,7 +61,7 @@ class ChatServiceRealApiTest extends IntegrationTestSupport {
 
     @Test
     @Disabled("실제 API 호출 테스트 - 필요할 때만 활성화")
-    void V2의_프롬프트로_Spring_중급_난이도_문제를_생성한다() {
+    void V2의_프롬프트로_운영체제_중급_난이도_문제를_생성한다() {
         // given
         String prompt = Prompt.V2_PROMPT.generate("운영체제", ProblemDifficulty.EASY);
 
