@@ -92,7 +92,7 @@ public class ProblemGenerator {
                     categoryTopic,
                     difficulty,
                     today,
-                    Prompt.V1_PROMPT.name()
+                    Prompt.V2_PROMPT.name()
             ));
             // 기존 메서드 사용 할려고 그냥 List로 감싸서 보냄
             dailyProblemManager.assignDailyProblemToMembers(problem, List.of(member), today);
@@ -150,7 +150,7 @@ public class ProblemGenerator {
                 group.categoryTopic(),  // 그룹에 포함된 CategoryTopic 사용
                 key.difficulty(),
                 problemAt,
-                Prompt.V1_PROMPT.name()
+                Prompt.V2_PROMPT.name()
         ));
 
         log.info("[ProblemGenerator] 문제 생성 완료 - 카테고리: {}, 난이도: {}, 대상 회원 수: {}",
@@ -163,7 +163,7 @@ public class ProblemGenerator {
     }
 
     private ProblemResponse getProblemToAi(String categoryTopicName, ProblemDifficulty difficulty) {
-        String prompt = Prompt.V1_PROMPT.generate(categoryTopicName, difficulty);
+        String prompt = Prompt.V2_PROMPT.generate(categoryTopicName, difficulty);
 
         return chatService.sendPrompt(prompt, ProblemResponse.class);
     }
