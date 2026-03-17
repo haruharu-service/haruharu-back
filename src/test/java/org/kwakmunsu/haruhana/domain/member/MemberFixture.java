@@ -48,7 +48,7 @@ public final class MemberFixture {
         return member;
     }
 
-    public static Member createMember(String loginId, String nickname) {
+    public static Member createMemberWithOutId(String loginId, String nickname) {
         return Member.createMember(
                 loginId,
                 PASSWORD,
