@@ -3,6 +3,7 @@ package org.kwakmunsu.haruhana.domain.dailyproblem.service;
 import java.time.LocalDate;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.kwakmunsu.haruhana.domain.dailyproblem.entity.DailyProblem;
 import org.kwakmunsu.haruhana.domain.dailyproblem.service.dto.response.DailyProblemDetailResponse;
 import org.kwakmunsu.haruhana.domain.dailyproblem.service.dto.response.DailyProblemResponse;
@@ -13,6 +14,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class DailyProblemService {
@@ -22,10 +24,12 @@ public class DailyProblemService {
 
     /**
      * 오늘의 문제 조회
+     *
      * @param memberId 회원 ID
      */
     @Cacheable(cacheNames = "todayProblem", key = "#memberId + ':' + T(java.time.LocalDate).now()")
     public TodayProblemResponse getTodayProblem(Long memberId) {
+        log.debug("[DailyProblemService] 오늘의 문제 캐시 미스 - 조회 시작");
         DailyProblem dailyProblem = dailyProblemReader.findDailyProblemByMember(memberId);
 
         return TodayProblemResponse.from(dailyProblem);
@@ -33,12 +37,14 @@ public class DailyProblemService {
 
     /**
      * 문제 상세 조회
+     *
      * @param dailyProblemId 오늘의 문제 ID
-     * @param memberId 회원 ID
+     * @param memberId       회원 ID
      */
     @Cacheable(cacheNames = "dailyProblemDetail", key = "#memberId + ':' + #dailyProblemId")
     @Transactional(readOnly = true)
     public DailyProblemDetailResponse getDailyProblem(Long dailyProblemId, Long memberId) {
+        log.debug("[DailyProblemService] 문제 상세 캐시 미스 - 조회 시작, dailyProblemId={}", dailyProblemId);
         DailyProblem dailyProblem = dailyProblemReader.find(dailyProblemId, memberId);
 
         Submission submission = submissionReader.findByMemberIdAndDailyProblemId(memberId, dailyProblemId)
@@ -49,14 +55,16 @@ public class DailyProblemService {
 
     /**
      * 날짜에 해당하는 회원에게 할당된 데일리 문제 미리보기 조회
-     * @param date 조회할 날짜
-     * @param memberId 회원 ID
-     * returns DailyProblemResponse 데일리 문제 미리보기 응답 DTO
-    * */
+     *
+     * @param date     조회할 날짜
+     * @param memberId 회원 ID returns DailyProblemResponse 데일리 문제 미리보기 응답 DTO
+     *
+     */
     public DailyProblemResponse findDailyProblem(LocalDate date, Long memberId) {
         Optional<DailyProblem> dailyProblem = dailyProblemReader.findDailyProblem(date, memberId);
 
         if (dailyProblem.isEmpty()) {
+            log.debug("[DailyProblemService] 해당 날짜의 문제 없음 - date={}", date);
             return DailyProblemResponse.builder().build();
         }
 

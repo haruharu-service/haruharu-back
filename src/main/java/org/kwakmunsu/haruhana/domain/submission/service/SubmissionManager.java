@@ -3,6 +3,7 @@ package org.kwakmunsu.haruhana.domain.submission.service;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.kwakmunsu.haruhana.domain.dailyproblem.entity.DailyProblem;
 import org.kwakmunsu.haruhana.domain.submission.entity.Submission;
 import org.kwakmunsu.haruhana.domain.submission.repository.SubmissionJpaRepository;
@@ -10,6 +11,7 @@ import org.kwakmunsu.haruhana.domain.submission.service.dto.response.SubmissionR
 import org.kwakmunsu.haruhana.global.entity.EntityStatus;
 import org.springframework.stereotype.Component;
 
+@Slf4j
 @RequiredArgsConstructor
 @Component
 public class SubmissionManager {
@@ -38,6 +40,8 @@ public class SubmissionManager {
         if (existingSubmission.isPresent()) {
             Submission submission = existingSubmission.get();
             submission.updateAnswer(userAnswer);
+            log.info("[SubmissionManager] 제출 답변 업데이트 - memberId={}, dailyProblemId={}",
+                    dailyProblem.getMember().getId(), dailyProblem.getId());
 
             return new SubmissionResult(submission, false /*isFirstSubmission */);
         } else {
@@ -48,6 +52,8 @@ public class SubmissionManager {
                     LocalDateTime.now()
             ));
             dailyProblem.markAsSolved();
+            log.info("[SubmissionManager] 최초 제출 완료 - memberId={}, dailyProblemId={}",
+                    dailyProblem.getMember().getId(), dailyProblem.getId());
 
             return new SubmissionResult(saved, true /*isFirstSubmission */);
         }
