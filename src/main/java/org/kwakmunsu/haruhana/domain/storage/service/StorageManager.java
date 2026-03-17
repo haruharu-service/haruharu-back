@@ -27,7 +27,7 @@ public class StorageManager {
     // NOTE: 현재 로직은 프로필 이미지 업로드에 한정되어 있지만, 추후 확장 될 경우 업로드 타입에 따른 분기 처리가 필요할 수 있음. Storage는 확장성 고려하여 설계됨
     @Transactional
     public void completeUpload(String objectKey, Member member) {
-        if (member.hasMatchingObjectKey(objectKey) || objectKey == null) {
+        if (objectKey == null || member.hasMatchingObjectKey(objectKey)) {
             log.debug("[StorageManager] 업로드 완료 스킵 - 동일하거나 null인 objectKey, memberId={}", member.getId());
             return;
         }
