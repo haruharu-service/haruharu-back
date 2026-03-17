@@ -32,6 +32,8 @@ public abstract class BaseEntity {
     @LastModifiedDate
     private LocalDateTime updatedAt;
 
+    private LocalDateTime deletedAt;
+
     @Enumerated(EnumType.STRING)
     private EntityStatus status = EntityStatus.ACTIVE;
 
@@ -69,6 +71,7 @@ public abstract class BaseEntity {
 
     public void delete() {
         status = EntityStatus.DELETED;
+        deletedAt = LocalDateTime.now();
     }
 
     public boolean isDeleted() {

@@ -70,7 +70,8 @@ public class CategoryManager {
 
         List<CategoryGroup> groups = categoryGroupJpaRepository.findByCategoryId(categoryId);
         groups.forEach(group -> {
-            categoryTopicJpaRepository.findByGroupId(group.getId()).forEach(CategoryTopic::delete);
+            categoryTopicJpaRepository.findByGroupId(group.getId())
+                    .forEach(CategoryTopic::delete);
             group.delete();
         });
 
@@ -95,7 +96,8 @@ public class CategoryManager {
 
         if (group.isDeleted()) return;
 
-        categoryTopicJpaRepository.findByGroupId(groupId).forEach(CategoryTopic::delete);
+        categoryTopicJpaRepository.findByGroupId(groupId)
+                .forEach(CategoryTopic::delete);
 
         group.delete();
     }

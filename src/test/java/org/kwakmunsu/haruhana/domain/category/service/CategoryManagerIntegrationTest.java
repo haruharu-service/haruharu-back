@@ -9,6 +9,7 @@ import org.kwakmunsu.haruhana.IntegrationTestSupport;
 import org.kwakmunsu.haruhana.domain.category.repository.CategoryGroupJpaRepository;
 import org.kwakmunsu.haruhana.domain.category.repository.CategoryJpaRepository;
 import org.kwakmunsu.haruhana.domain.category.repository.CategoryTopicJpaRepository;
+import org.kwakmunsu.haruhana.global.entity.EntityStatus;
 import org.kwakmunsu.haruhana.global.support.error.ErrorType;
 import org.kwakmunsu.haruhana.global.support.error.HaruHanaException;
 import org.springframework.transaction.annotation.Transactional;
@@ -143,6 +144,97 @@ class CategoryManagerIntegrationTest extends IntegrationTestSupport {
         assertThatThrownBy(() -> categoryManager.createCategoryTopic(group.getId(), topicName))
                 .isInstanceOf(HaruHanaException.class)
                 .hasMessageContaining(ErrorType.DUPLICATE_CATEGORY_TOPIC_NAME.getMessage());
+    }
+
+    @Test
+    void 카테고리_삭제_후_동일한_이름으로_재생성_시_성공한다() {
+        // given
+        var name = "알고리즘";
+        var category = categoryManager.createCategory(name);
+        categoryManager.deleteCategory(category.getId());
+
+        // when
+        var newCategory = categoryManager.createCategory(name);
+
+        // then
+        assertThat(newCategory.getName()).isEqualTo(name);
+        assertThat(newCategory.getId()).isNotEqualTo(category.getId());
+    }
+
+    @Test
+    void 그룹_삭제_후_동일한_이름으로_재생성_시_성공한다() {
+        // given
+        var category = categoryManager.createCategory("알고리즘");
+        var groupName = "자료구조";
+        var group = categoryManager.createCategoryGroup(category.getId(), groupName);
+        categoryManager.deleteCategoryGroup(group.getId());
+
+        // when
+        var newGroup = categoryManager.createCategoryGroup(category.getId(), groupName);
+
+        // then
+        assertThat(newGroup.getName()).isEqualTo(groupName);
+        assertThat(newGroup.getId()).isNotEqualTo(group.getId());
+    }
+
+    @Test
+    void 토픽_삭제_후_동일한_이름으로_재생성_시_성공한다() {
+        // given
+        var category = categoryManager.createCategory("알고리즘");
+        var group = categoryManager.createCategoryGroup(category.getId(), "자료구조");
+        var topicName = "배열";
+        var topic = categoryManager.createCategoryTopic(group.getId(), topicName);
+        categoryManager.deleteCategoryTopic(topic.getId());
+
+        // when
+        var newTopic = categoryManager.createCategoryTopic(group.getId(), topicName);
+
+        // then
+        assertThat(newTopic.getName()).isEqualTo(topicName);
+        assertThat(newTopic.getId()).isNotEqualTo(topic.getId());
+    }
+
+    @Test
+    void 카테고리_삭제_시_하위_그룹과_토픽도_soft_delete_된다() {
+        // given
+        var category = categoryManager.createCategory("알고리즘");
+        var group = categoryManager.createCategoryGroup(category.getId(), "자료구조");
+        var topic = categoryManager.createCategoryTopic(group.getId(), "배열");
+
+        // when
+        categoryManager.deleteCategory(category.getId());
+
+        // then
+        var deletedCategory = categoryJpaRepository.findById(category.getId()).orElseThrow();
+        var deletedGroup = categoryGroupJpaRepository.findById(group.getId()).orElseThrow();
+        var deletedTopic = categoryTopicJpaRepository.findById(topic.getId()).orElseThrow();
+
+        assertThat(deletedCategory.getStatus()).isEqualTo(EntityStatus.DELETED);
+        assertThat(deletedCategory.getDeletedAt()).isNotNull();
+        assertThat(deletedGroup.getStatus()).isEqualTo(EntityStatus.DELETED);
+        assertThat(deletedGroup.getDeletedAt()).isNotNull();
+        assertThat(deletedTopic.getStatus()).isEqualTo(EntityStatus.DELETED);
+        assertThat(deletedTopic.getDeletedAt()).isNotNull();
+    }
+
+    @Test
+    void 그룹_삭제_시_하위_토픽도_soft_delete_된다() {
+        // given
+        var category = categoryManager.createCategory("알고리즘");
+        var group = categoryManager.createCategoryGroup(category.getId(), "자료구조");
+        var topic = categoryManager.createCategoryTopic(group.getId(), "배열");
+
+        // when
+        categoryManager.deleteCategoryGroup(group.getId());
+
+        // then
+        var deletedGroup = categoryGroupJpaRepository.findById(group.getId()).orElseThrow();
+        var deletedTopic = categoryTopicJpaRepository.findById(topic.getId()).orElseThrow();
+
+        assertThat(deletedGroup.getStatus()).isEqualTo(EntityStatus.DELETED);
+        assertThat(deletedGroup.getDeletedAt()).isNotNull();
+        assertThat(deletedTopic.getStatus()).isEqualTo(EntityStatus.DELETED);
+        assertThat(deletedTopic.getDeletedAt()).isNotNull();
     }
 
 }
