@@ -6,7 +6,6 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.kwakmunsu.haruhana.domain.dailyproblem.service.DailyProblemReader;
-import org.kwakmunsu.haruhana.domain.member.entity.MemberDevice;
 import org.kwakmunsu.haruhana.domain.member.service.MemberDeviceReader;
 import org.kwakmunsu.haruhana.domain.notification.enums.NotificationMessage;
 import org.kwakmunsu.haruhana.domain.notification.enums.NotificationType;
@@ -44,10 +43,13 @@ public class NotificationScheduler {
     }
 
     private List<String> getUnsolvedMemberDeviceTokens(LocalDate date) {
-        return dailyProblemReader.findUnsolvedMember(date).stream()
-                .map(memberDeviceReader::findByMemberId)
-                .map(MemberDevice::getDeviceToken)
-                .toList();
+        List<Long> unsolvedMemberIds = dailyProblemReader.findUnsolvedMember(date);
+
+        if (unsolvedMemberIds.isEmpty()) {
+            return List.of();
+        }
+
+        return memberDeviceReader.findDeviceTokensByMemberIds(unsolvedMemberIds);
     }
 
     private void sendBulkNotifications(List<String> deviceTokens) {
