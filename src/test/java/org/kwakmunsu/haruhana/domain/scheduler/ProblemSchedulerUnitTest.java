@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import org.junit.jupiter.api.Test;
 import org.kwakmunsu.haruhana.UnitTestSupport;
 import org.kwakmunsu.haruhana.domain.problem.service.ProblemGenerator;
+import org.kwakmunsu.haruhana.global.support.notification.ErrorNotificationSender;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 
@@ -17,6 +18,9 @@ class ProblemSchedulerUnitTest extends UnitTestSupport {
 
     @Mock
     ProblemGenerator problemGenerator;
+
+    @Mock
+    ErrorNotificationSender errorNotificationSender;
 
     @InjectMocks
     ProblemScheduler problemScheduler;
@@ -44,7 +48,7 @@ class ProblemSchedulerUnitTest extends UnitTestSupport {
 
         // then
         verify(problemGenerator, times(1)).generateProblem(any(LocalDate.class));
-        // 예외가 발생해도 스케줄러는 종료되지 않음 (로그만 출력)
+        verify(errorNotificationSender, times(1)).sendErrorNotification(any(String.class), any(Exception.class));
     }
 
     @Test

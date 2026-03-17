@@ -17,6 +17,7 @@ import org.kwakmunsu.haruhana.domain.dailyproblem.service.DailyProblemReader;
 import org.kwakmunsu.haruhana.domain.member.service.MemberDeviceReader;
 import org.kwakmunsu.haruhana.domain.notification.enums.NotificationMessage;
 import org.kwakmunsu.haruhana.domain.notification.enums.NotificationType;
+import org.kwakmunsu.haruhana.global.support.notification.ErrorNotificationSender;
 import org.kwakmunsu.haruhana.global.support.notification.NotificationSender;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -31,6 +32,9 @@ class NotificationSchedulerUnitTest extends UnitTestSupport {
 
     @Mock
     NotificationSender notificationSender;
+
+    @Mock
+    ErrorNotificationSender errorNotificationSender;
 
     @InjectMocks
     NotificationScheduler notificationScheduler;
@@ -83,6 +87,8 @@ class NotificationSchedulerUnitTest extends UnitTestSupport {
 
         // when & then: 예외가 외부로 전파되지 않음
         notificationScheduler.notifyUnsolvedProblemMembers();
+
+        verify(errorNotificationSender, times(1)).sendErrorNotification(any(), any());
     }
 
     @Test
@@ -95,6 +101,7 @@ class NotificationSchedulerUnitTest extends UnitTestSupport {
         notificationScheduler.notifyUnsolvedProblemMembers();
 
         verify(notificationSender, never()).sendNotification(any(), any(), any(), any());
+        verify(errorNotificationSender, times(1)).sendErrorNotification(any(), any());
     }
 
 }
