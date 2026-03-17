@@ -83,7 +83,11 @@ public class S3Provider implements StorageProvider {
                     .build();
             PresignedGetObjectRequest presignedGetObjectRequest = s3Presigner.presignGetObject(presignRequest);
 
-            return presignedGetObjectRequest.url().toString();
+            String presignedReadUrl = presignedGetObjectRequest.url().toString();
+
+            log.info("[S3Provider] Read Presigned URL 생성 완료 - objectKey: {}", objectKey);
+
+            return presignedReadUrl;
         } catch (Exception e) {
             log.error("[S3Provider] Get Presigned URL 생성 실패", e);
             throw new HaruHanaException(ErrorType.S3_PRESIGNED_URL_ERROR);
@@ -97,6 +101,7 @@ public class S3Provider implements StorageProvider {
                     .bucket(bucket)
                     .key(objectKey)
             );
+            log.debug("[S3Provider] S3 객체 존재 확인 완료 - objectKey: {}", objectKey);
         } catch (S3Exception e) {
             log.error("[S3Provider] S3 객체 존재 확인 실패 - objectKey: {}", objectKey, e);
             throw new HaruHanaException(ErrorType.NOT_FOUND_FILE);
@@ -110,6 +115,7 @@ public class S3Provider implements StorageProvider {
     @Override
     public void deleteObjectAsync(String oldKey) {
         if (oldKey == null || oldKey.isBlank()) {
+            log.debug("[S3Provider] S3 객체 삭제 스킵 - 빈 objectKey");
             return;
         }
 
@@ -118,6 +124,7 @@ public class S3Provider implements StorageProvider {
                     .bucket(bucket)
                     .key(oldKey)
             );
+            log.info("[S3Provider] S3 객체 삭제 완료 - objectKey: {}", oldKey);
         } catch (Exception e) {
             log.error("[S3Provider] S3 객체 삭제 실패 - objectKey: {}", oldKey, e);
         }
@@ -130,12 +137,17 @@ public class S3Provider implements StorageProvider {
         String uuid = UUID.randomUUID().toString().substring(0, 16);
         LocalDate today = LocalDate.now(ZoneId.of("Asia/Seoul"));
 
-        return "uploads/%s/%s/%s.%s".formatted(
+        String key = "uploads/%s/%s/%s.%s".formatted(
                 today,
                 uploadType.name().toLowerCase(),
                 uuid,
                 fileContentType.getExtension()
         );
+
+        log.debug("[S3Provider] S3 Key 생성 - uploadType: {}, contentType: {}, key: {}",
+                uploadType.name(), fileContentType.getMimeType(), key);
+
+        return key;
     }
 
 }

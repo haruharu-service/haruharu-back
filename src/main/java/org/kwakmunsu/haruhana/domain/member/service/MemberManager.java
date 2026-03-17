@@ -28,23 +28,29 @@ public class MemberManager {
     private final PasswordEncoder passwordEncoder;
 
     public Member create(NewProfile newProfile) {
-        return memberJpaRepository.save(Member.createMember(
+        Member member = memberJpaRepository.save(Member.createMember(
                 newProfile.loginId(),
                 passwordEncoder.encode(newProfile.password()),
                 newProfile.nickname(),
                 Role.ROLE_MEMBER
         ));
+        log.info("[MemberManager] 회원 생성 완료");
+
+        return member;
     }
 
     public MemberPreference registerPreference(Member member, NewPreference newPreference) {
         CategoryTopic categoryTopic = categoryReader.findCategoryTopic(newPreference.categoryTopicId());
 
-        return memberPreferenceJpaRepository.save(MemberPreference.create(
+        MemberPreference preference = memberPreferenceJpaRepository.save(MemberPreference.create(
                 member,
                 categoryTopic,
                 newPreference.difficulty(),
                 LocalDate.now() // 첫 등록은 등록 날짜로 고정
         ));
+        log.info("[MemberManager] 회원 선호 설정 등록 완료 - categoryTopicId={}, difficulty={}",
+                newPreference.categoryTopicId(), newPreference.difficulty());
+        return preference;
     }
 
     @Transactional
@@ -60,8 +66,8 @@ public class MemberManager {
             preferenceUpdateForTomorrow(memberPreference, member, categoryTopic, updatePreference);
         }
 
-        log.info("[MemberManager] 회원 학습 목록 수정 - 회원 id: {}, category: {}, difficulty: {} ",
-                member.getId(), updatePreference.categoryTopicId(), updatePreference.difficulty());
+        log.info("[MemberManager] 회원 학습 목록 수정 - category: {}, difficulty: {} ",
+                updatePreference.categoryTopicId(), updatePreference.difficulty());
     }
 
     public void updateRefreshToken(Member member, String refreshToken) {
