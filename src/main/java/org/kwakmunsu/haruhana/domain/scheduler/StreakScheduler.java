@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.kwakmunsu.haruhana.domain.member.entity.Member;
 import org.kwakmunsu.haruhana.domain.member.service.MemberReader;
 import org.kwakmunsu.haruhana.domain.streak.service.StreakManager;
+import org.kwakmunsu.haruhana.global.support.notification.ErrorNotificationSender;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -18,6 +19,7 @@ public class StreakScheduler {
 
     private final MemberReader memberReader;
     private final StreakManager streakManager;
+    private final ErrorNotificationSender errorNotificationSender;
 
     /**
      * 매일 00: 00분에 전날 문제를 제출하지 않은 회원들의 스트릭을 초기화하는 스케줄러 <br>
@@ -39,6 +41,7 @@ public class StreakScheduler {
                 streakManager.initStreakForMember(member);
             } catch (Exception e) {
                 log.warn("[StreakScheduler] 회원 스트릭 초기화 실패 - memberId: {}, error: {}", member.getId(), e.getMessage());
+                errorNotificationSender.sendErrorNotification("[StreakScheduler] 회원 스트릭 초기화 실패 - memberId: " + member.getId(), e);
             }
         }
 
