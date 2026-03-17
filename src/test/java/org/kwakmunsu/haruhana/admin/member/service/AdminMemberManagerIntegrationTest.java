@@ -98,7 +98,7 @@ class AdminMemberManagerIntegrationTest extends IntegrationTestSupport {
     @Test
     void 관리자가_회원_닉네임을_변경한다() {
         // given
-        var member = MemberFixture.createMember("loginId1", "기존닉네임");
+        var member = MemberFixture.createMemberWithOutId("loginId1", "기존닉네임");
         memberJpaRepository.save(member);
 
         // when
@@ -128,8 +128,8 @@ class AdminMemberManagerIntegrationTest extends IntegrationTestSupport {
     @Test
     void 이미_사용_중인_닉네임으로_변경하면_예외를_반환한다() {
         // given
-        var member1 = MemberFixture.createMember("loginId1", "닉네임1");
-        var member2 = MemberFixture.createMember("loginId2", "닉네임2");
+        var member1 = MemberFixture.createMemberWithOutId("loginId1", "닉네임1");
+        var member2 = MemberFixture.createMemberWithOutId("loginId2", "닉네임2");
         memberJpaRepository.saveAll(List.of(member1, member2));
         entityManager.flush();
 

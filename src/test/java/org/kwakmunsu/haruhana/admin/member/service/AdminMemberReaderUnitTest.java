@@ -49,7 +49,7 @@ class AdminMemberReaderUnitTest extends UnitTestSupport {
         // given
         List<Member> members = new ArrayList<>();
         for (int i = 0; i < 3; i++) {
-            members.add(MemberFixture.createMember(
+            members.add(MemberFixture.createMemberWithOutId(
                     "user" + i,
                     "유저" + i
             ));
@@ -73,9 +73,9 @@ class AdminMemberReaderUnitTest extends UnitTestSupport {
     void 미지막_페이지의_회원_정보를_조회한다() {
         // given
         List<Member> members = List.of(
-                MemberFixture.createMember("user2", "유저2"),
-                MemberFixture.createMember("user3", "유저3"),
-                MemberFixture.createMember("user1", "유저1")
+                MemberFixture.createMemberWithOutId("user2", "유저2"),
+                MemberFixture.createMemberWithOutId("user3", "유저3"),
+                MemberFixture.createMemberWithOutId("user1", "유저1")
         );
         given(memberQueryDslRepository.findMembers(any(), any(), any())).willReturn(members);
 
@@ -101,7 +101,7 @@ class AdminMemberReaderUnitTest extends UnitTestSupport {
     @Test
     void 조회된_회원_정보를_확인한다() {
         // given
-        List<Member> members = List.of(MemberFixture.createMember("user2", "유저2"));
+        List<Member> members = List.of(MemberFixture.createMemberWithOutId("user2", "유저2"));
         given(memberQueryDslRepository.findMembers(any(), any(), any())).willReturn(members);
 
         // when

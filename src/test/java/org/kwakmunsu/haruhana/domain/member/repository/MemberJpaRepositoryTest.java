@@ -56,9 +56,9 @@ class MemberJpaRepositoryTest extends IntegrationTestSupport {
     @Test
     void 오늘_제출하지_않은_회원만_조회한다() {
         // given
-        var member1 = memberJpaRepository.save(MemberFixture.createMember("user1", "유저1"));
-        var member2 = memberJpaRepository.save(MemberFixture.createMember("user2", "유저2"));
-        var member3 = memberJpaRepository.save(MemberFixture.createMember("user3", "유저3"));
+        var member1 = memberJpaRepository.save(MemberFixture.createMemberWithOutId("user1", "유저1"));
+        var member2 = memberJpaRepository.save(MemberFixture.createMemberWithOutId("user2", "유저2"));
+        var member3 = memberJpaRepository.save(MemberFixture.createMemberWithOutId("user3", "유저3"));
 
         // member1은 오늘 제출함
         createSubmission(member1, LocalDateTime.now());
@@ -85,8 +85,8 @@ class MemberJpaRepositoryTest extends IntegrationTestSupport {
     @Test
     void INACTIVE_상태의_회원은_조회하지_않는다() {
         // given
-        var activeMember = memberJpaRepository.save(MemberFixture.createMember("active", "활성유저"));
-        var inactiveMember = MemberFixture.createMember("inactive", "비활성유저");
+        var activeMember = memberJpaRepository.save(MemberFixture.createMemberWithOutId("active", "활성유저"));
+        var inactiveMember = MemberFixture.createMemberWithOutId("inactive", "비활성유저");
         // inactiveMember를 비활성화
         ReflectionTestUtils.setField(inactiveMember, "status", EntityStatus.DELETED);
         memberJpaRepository.save(inactiveMember);
@@ -108,7 +108,7 @@ class MemberJpaRepositoryTest extends IntegrationTestSupport {
     @Test
     void MEMBER_권한의_회원만_조회한다() {
         // given
-        var member = memberJpaRepository.save(MemberFixture.createMember("member", "멤버"));
+        var member = memberJpaRepository.save(MemberFixture.createMemberWithOutId("member", "멤버"));
 
         // when
         List<Member> result = memberJpaRepository.findMembersWithoutTodaySubmission(
@@ -127,8 +127,8 @@ class MemberJpaRepositoryTest extends IntegrationTestSupport {
     @Test
     void 모든_회원이_제출한_경우_빈_리스트를_반환한다() {
         // given
-        var member1 = memberJpaRepository.save(MemberFixture.createMember("user1", "유저1"));
-        var member2 = memberJpaRepository.save(MemberFixture.createMember("user2", "유저2"));
+        var member1 = memberJpaRepository.save(MemberFixture.createMemberWithOutId("user1", "유저1"));
+        var member2 = memberJpaRepository.save(MemberFixture.createMemberWithOutId("user2", "유저2"));
 
         // 모두 오늘 제출
         createSubmission(member1, LocalDateTime.now());
@@ -165,9 +165,9 @@ class MemberJpaRepositoryTest extends IntegrationTestSupport {
     @Test
     void 시간대가_다른_오늘_제출도_정확히_필터링된다() {
         // given
-        var member1 = memberJpaRepository.save(MemberFixture.createMember("user1", "유저1"));
-        var member2 = memberJpaRepository.save(MemberFixture.createMember("user2", "유저2"));
-        var member3 = memberJpaRepository.save(MemberFixture.createMember("user3", "유저3"));
+        var member1 = memberJpaRepository.save(MemberFixture.createMemberWithOutId("user1", "유저1"));
+        var member2 = memberJpaRepository.save(MemberFixture.createMemberWithOutId("user2", "유저2"));
+        var member3 = memberJpaRepository.save(MemberFixture.createMemberWithOutId("user3", "유저3"));
 
         // member1: 오늘 새벽 00:01
         createSubmission(member1, LocalDate.now().atTime(0, 1));

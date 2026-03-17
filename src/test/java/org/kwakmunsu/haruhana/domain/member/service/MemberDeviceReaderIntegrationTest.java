@@ -25,8 +25,8 @@ class MemberDeviceReaderIntegrationTest extends IntegrationTestSupport {
     @Test
     void 여러_회원_ID의_ACTIVE_디바이스_토큰을_한_번에_조회한다() {
         // given
-        var member1 = MemberFixture.createMemberWithOutId(Role.ROLE_MEMBER);
-        var member2 = MemberFixture.createMemberWithOutId(Role.ROLE_MEMBER);
+        var member1 = MemberFixture.createMemberWithOutId("loginId1", "nickname1");
+        var member2 = MemberFixture.createMemberWithOutId("loginId2", "nickname2");
         memberJpaRepository.saveAll(List.of(member1, member2));
 
         memberDeviceJpaRepository.save(MemberDevice.register(member1, "token-member1", LocalDateTime.now()));
@@ -80,8 +80,8 @@ class MemberDeviceReaderIntegrationTest extends IntegrationTestSupport {
     @Test
     void 조회_대상_회원_ID에_포함되지_않은_회원의_토큰은_반환되지_않는다() {
         // given
-        var targetMember = MemberFixture.createMemberWithOutId(Role.ROLE_MEMBER);
-        var otherMember = MemberFixture.createMemberWithOutId(Role.ROLE_MEMBER);
+        var targetMember = MemberFixture.createMemberWithOutId("loginId1", "nickname1");
+        var otherMember = MemberFixture.createMemberWithOutId("loginId2", "nickname2");
         memberJpaRepository.saveAll(List.of(targetMember, otherMember));
 
         memberDeviceJpaRepository.save(MemberDevice.register(targetMember, "target-token", LocalDateTime.now()));

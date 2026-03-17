@@ -24,9 +24,9 @@ class MemberQueryDslRepositoryTest extends IntegrationTestSupport {
     @Test
     void 닉네임에_검색어가_포함된_회원만_조회된다() {
         // given
-        memberJpaRepository.save(MemberFixture.createMember("user1", "자바개발자"));
-        memberJpaRepository.save(MemberFixture.createMember("user2", "파이썬개발자"));
-        memberJpaRepository.save(MemberFixture.createMember("user3", "스프링개발자"));
+        memberJpaRepository.save(MemberFixture.createMemberWithOutId("user1", "자바개발자"));
+        memberJpaRepository.save(MemberFixture.createMemberWithOutId("user2", "파이썬개발자"));
+        memberJpaRepository.save(MemberFixture.createMemberWithOutId("user3", "스프링개발자"));
 
         // when
         List<Member> result = memberQueryDslRepository.findMembers("자바", null, new OffsetLimit(1, 20));
@@ -40,8 +40,8 @@ class MemberQueryDslRepositoryTest extends IntegrationTestSupport {
     @Test
     void 아이디에_검색어가_포함된_회원도_조회된다() {
         // given
-        memberJpaRepository.save(MemberFixture.createMember("javaUser", "유저1"));
-        memberJpaRepository.save(MemberFixture.createMember("pythonUser", "유저2"));
+        memberJpaRepository.save(MemberFixture.createMemberWithOutId("javaUser", "유저1"));
+        memberJpaRepository.save(MemberFixture.createMemberWithOutId("pythonUser", "유저2"));
 
         // when
         List<Member> result = memberQueryDslRepository.findMembers("java", null, new OffsetLimit(1, 20));
@@ -55,8 +55,8 @@ class MemberQueryDslRepositoryTest extends IntegrationTestSupport {
     @Test
     void 검색은_대소문자를_구분하지_않는다() {
         // given
-        memberJpaRepository.save(MemberFixture.createMember("javaUser", "유저1"));
-        memberJpaRepository.save(MemberFixture.createMember("pythonUser", "유저2"));
+        memberJpaRepository.save(MemberFixture.createMemberWithOutId("javaUser", "유저1"));
+        memberJpaRepository.save(MemberFixture.createMemberWithOutId("pythonUser", "유저2"));
 
         // when
         List<Member> result = memberQueryDslRepository.findMembers("JAVA", null, new OffsetLimit(1, 20));
@@ -70,9 +70,9 @@ class MemberQueryDslRepositoryTest extends IntegrationTestSupport {
     @Test
     void 검색어가_빈_문자열이면_전체_회원을_조회한다() {
         // given
-        memberJpaRepository.save(MemberFixture.createMember("user1", "유저1"));
-        memberJpaRepository.save(MemberFixture.createMember("user2", "유저2"));
-        memberJpaRepository.save(MemberFixture.createMember("user3", "유저3"));
+        memberJpaRepository.save(MemberFixture.createMemberWithOutId("user1", "유저1"));
+        memberJpaRepository.save(MemberFixture.createMemberWithOutId("user2", "유저2"));
+        memberJpaRepository.save(MemberFixture.createMemberWithOutId("user3", "유저3"));
 
         // when
         List<Member> result = memberQueryDslRepository.findMembers("", null, new OffsetLimit(1, 20));
@@ -84,8 +84,8 @@ class MemberQueryDslRepositoryTest extends IntegrationTestSupport {
     @Test
     void 검색어가_공백만_있으면_전체_회원을_조회한다() {
         // given
-        memberJpaRepository.save(MemberFixture.createMember("user1", "유저1"));
-        memberJpaRepository.save(MemberFixture.createMember("user2", "유저2"));
+        memberJpaRepository.save(MemberFixture.createMemberWithOutId("user1", "유저1"));
+        memberJpaRepository.save(MemberFixture.createMemberWithOutId("user2", "유저2"));
 
         // when
         List<Member> result = memberQueryDslRepository.findMembers("   ", null, new OffsetLimit(1, 20));
@@ -97,8 +97,8 @@ class MemberQueryDslRepositoryTest extends IntegrationTestSupport {
     @Test
     void 검색어가_null이면_전체_회원을_조회한다() {
         // given
-        memberJpaRepository.save(MemberFixture.createMember("user1", "유저1"));
-        memberJpaRepository.save(MemberFixture.createMember("user2", "유저2"));
+        memberJpaRepository.save(MemberFixture.createMemberWithOutId("user1", "유저1"));
+        memberJpaRepository.save(MemberFixture.createMemberWithOutId("user2", "유저2"));
 
         // when
         List<Member> result = memberQueryDslRepository.findMembers(null, null, new OffsetLimit(1, 20));
@@ -110,7 +110,7 @@ class MemberQueryDslRepositoryTest extends IntegrationTestSupport {
     @Test
     void 검색어와_일치하는_회원이_없으면_빈_리스트를_반환한다() {
         // given
-        memberJpaRepository.save(MemberFixture.createMember("user1", "유저1"));
+        memberJpaRepository.save(MemberFixture.createMemberWithOutId("user1", "유저1"));
 
         // when
         List<Member> result = memberQueryDslRepository.findMembers("존재하지않는검색어", null, new OffsetLimit(1, 20));
@@ -124,9 +124,9 @@ class MemberQueryDslRepositoryTest extends IntegrationTestSupport {
     @Test
     void 정렬_기준이_null이면_id_내림차순으로_조회된다() {
         // given
-        var member1 = memberJpaRepository.save(MemberFixture.createMember("user1", "유저1"));
-        var member2 = memberJpaRepository.save(MemberFixture.createMember("user2", "유저2"));
-        var member3 = memberJpaRepository.save(MemberFixture.createMember("user3", "유저3"));
+        var member1 = memberJpaRepository.save(MemberFixture.createMemberWithOutId("user1", "유저1"));
+        var member2 = memberJpaRepository.save(MemberFixture.createMemberWithOutId("user2", "유저2"));
+        var member3 = memberJpaRepository.save(MemberFixture.createMemberWithOutId("user3", "유저3"));
 
         // when
         List<Member> result = memberQueryDslRepository.findMembers("", null, new OffsetLimit(1, 20));
@@ -143,9 +143,9 @@ class MemberQueryDslRepositoryTest extends IntegrationTestSupport {
     @Test
     void JOIN_ASC이면_id_오름차순으로_조회된다() {
         // given
-        var member1 = memberJpaRepository.save(MemberFixture.createMember("user1", "유저1"));
-        var member2 = memberJpaRepository.save(MemberFixture.createMember("user2", "유저2"));
-        var member3 = memberJpaRepository.save(MemberFixture.createMember("user3", "유저3"));
+        var member1 = memberJpaRepository.save(MemberFixture.createMemberWithOutId("user1", "유저1"));
+        var member2 = memberJpaRepository.save(MemberFixture.createMemberWithOutId("user2", "유저2"));
+        var member3 = memberJpaRepository.save(MemberFixture.createMemberWithOutId("user3", "유저3"));
 
         // when
         List<Member> result = memberQueryDslRepository.findMembers("", SortBy.JOIN_ASC, new OffsetLimit(1, 20));
@@ -158,9 +158,9 @@ class MemberQueryDslRepositoryTest extends IntegrationTestSupport {
     @Test
     void JOIN_DESC이면_id_내림차순으로_조회된다() {
         // given
-        var member1 = memberJpaRepository.save(MemberFixture.createMember("user1", "유저1"));
-        var member2 = memberJpaRepository.save(MemberFixture.createMember("user2", "유저2"));
-        var member3 = memberJpaRepository.save(MemberFixture.createMember("user3", "유저3"));
+        var member1 = memberJpaRepository.save(MemberFixture.createMemberWithOutId("user1", "유저1"));
+        var member2 = memberJpaRepository.save(MemberFixture.createMemberWithOutId("user2", "유저2"));
+        var member3 = memberJpaRepository.save(MemberFixture.createMemberWithOutId("user3", "유저3"));
 
         // when
         List<Member> result = memberQueryDslRepository.findMembers("", SortBy.JOIN_DESC, new OffsetLimit(1, 20));
@@ -175,9 +175,9 @@ class MemberQueryDslRepositoryTest extends IntegrationTestSupport {
     @Test
     void 다음_페이지_감지를_위해_size보다_1개_더_조회한다() {
         // given - size=2 이면 limit+1=3 개를 조회
-        memberJpaRepository.save(MemberFixture.createMember("user1", "유저1"));
-        memberJpaRepository.save(MemberFixture.createMember("user2", "유저2"));
-        memberJpaRepository.save(MemberFixture.createMember("user3", "유저3"));
+        memberJpaRepository.save(MemberFixture.createMemberWithOutId("user1", "유저1"));
+        memberJpaRepository.save(MemberFixture.createMemberWithOutId("user2", "유저2"));
+        memberJpaRepository.save(MemberFixture.createMemberWithOutId("user3", "유저3"));
 
         // when
         List<Member> result = memberQueryDslRepository.findMembers("", null, new OffsetLimit(1, 2));
@@ -189,8 +189,8 @@ class MemberQueryDslRepositoryTest extends IntegrationTestSupport {
     @Test
     void 다음_페이지가_없으면_size_이하로_조회된다() {
         // given
-        memberJpaRepository.save(MemberFixture.createMember("user1", "유저1"));
-        memberJpaRepository.save(MemberFixture.createMember("user2", "유저2"));
+        memberJpaRepository.save(MemberFixture.createMemberWithOutId("user1", "유저1"));
+        memberJpaRepository.save(MemberFixture.createMemberWithOutId("user2", "유저2"));
 
         // when - size=5 이면 limit+1=6 이지만 데이터는 2개
         List<Member> result = memberQueryDslRepository.findMembers("", null, new OffsetLimit(1, 5));
@@ -202,11 +202,11 @@ class MemberQueryDslRepositoryTest extends IntegrationTestSupport {
     @Test
     void offset이_적용되어_다음_페이지의_데이터를_조회한다() {
         // given
-        memberJpaRepository.save(MemberFixture.createMember("user1", "유저1"));
-        memberJpaRepository.save(MemberFixture.createMember("user2", "유저2"));
-        var member3 = memberJpaRepository.save(MemberFixture.createMember("user3", "유저3"));
-        var member4 = memberJpaRepository.save(MemberFixture.createMember("user4", "유저4"));
-        var member5 = memberJpaRepository.save(MemberFixture.createMember("user5", "유저5"));
+        memberJpaRepository.save(MemberFixture.createMemberWithOutId("user1", "유저1"));
+        memberJpaRepository.save(MemberFixture.createMemberWithOutId("user2", "유저2"));
+        var member3 = memberJpaRepository.save(MemberFixture.createMemberWithOutId("user3", "유저3"));
+        var member4 = memberJpaRepository.save(MemberFixture.createMemberWithOutId("user4", "유저4"));
+        var member5 = memberJpaRepository.save(MemberFixture.createMemberWithOutId("user5", "유저5"));
 
         // when - 2페이지, size=2 → offset=2, limit=3(+1)
         List<Member> result = memberQueryDslRepository.findMembers("", SortBy.JOIN_ASC, new OffsetLimit(2, 2));

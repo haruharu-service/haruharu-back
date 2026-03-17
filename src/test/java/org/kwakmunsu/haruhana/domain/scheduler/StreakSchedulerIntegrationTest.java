@@ -102,9 +102,9 @@ class StreakSchedulerIntegrationTest extends IntegrationTestSupport {
     @Test
     void 여러_회원_중_미제출_회원만_스트릭이_초기화된다() {
         // given
-        var member1 = memberJpaRepository.save(MemberFixture.createMember("user1", "유저1"));
-        var member2 = memberJpaRepository.save(MemberFixture.createMember("user2", "유저2"));
-        var member3 = memberJpaRepository.save(MemberFixture.createMember("user3", "유저3"));
+        var member1 = memberJpaRepository.save(MemberFixture.createMemberWithOutId("user1", "유저1"));
+        var member2 = memberJpaRepository.save(MemberFixture.createMemberWithOutId("user2", "유저2"));
+        var member3 = memberJpaRepository.save(MemberFixture.createMemberWithOutId("user3", "유저3"));
 
         var streak1 = createStreakWithCount(member1);
         var streak2 = createStreakWithCount(member2);
@@ -130,8 +130,8 @@ class StreakSchedulerIntegrationTest extends IntegrationTestSupport {
     @Test
     void DELETED_회원은_스트릭_초기화_대상에서_제외된다() {
         // given
-        var activeMember = memberJpaRepository.save(MemberFixture.createMember("active", "활성유저"));
-        var deletedMember = memberJpaRepository.save(MemberFixture.createMember("deleted", "삭제유저"));
+        var activeMember = memberJpaRepository.save(MemberFixture.createMemberWithOutId("active", "활성유저"));
+        var deletedMember = memberJpaRepository.save(MemberFixture.createMemberWithOutId("deleted", "삭제유저"));
 
         var activeStreak = createStreakWithCount(activeMember);
         var deletedStreak = createStreakWithCount(deletedMember);
