@@ -1,6 +1,7 @@
 package org.kwakmunsu.haruhana.security;
 
 import lombok.RequiredArgsConstructor;
+import org.kwakmunsu.haruhana.global.security.jwt.SecurityPaths;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -22,12 +23,10 @@ public class TestSecurityConfig {
                         session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/v1/categories").permitAll()
-                        .requestMatchers("/v1/auth/login", "/v1/auth/reissue").permitAll()
-                        .requestMatchers("/v1/members/sign-up", "/v1/members/nickname", "/v1/members/login-id").permitAll()
-                        .requestMatchers("/actuator/health", "/actuator/info").permitAll()
-                        .requestMatchers("/swagger/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                        .requestMatchers("/v1/admin/**", "/actuator/**").hasRole("ADMIN")
+                        .requestMatchers(SecurityPaths.ACTUATOR_PERMIT).permitAll()
+                        .requestMatchers("/actuator/**").denyAll()
+                        .requestMatchers(SecurityPaths.PERMIT_ALL).permitAll()
+                        .requestMatchers(SecurityPaths.ADMIN).hasRole("ADMIN")
                         .anyRequest().hasAnyRole("MEMBER", "ADMIN")
                 );
 

@@ -2,6 +2,7 @@ package org.kwakmunsu.haruhana.global.security.jwt;
 
 import static org.kwakmunsu.haruhana.global.security.jwt.enums.TokenType.AUTHORIZATION_HEADER;
 import static org.kwakmunsu.haruhana.global.security.jwt.enums.TokenType.BEARER_PREFIX;
+import static org.kwakmunsu.haruhana.global.support.error.ErrorType.EMPTY_TOKEN;
 import static org.kwakmunsu.haruhana.global.support.error.ErrorType.INVALID_TOKEN;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -10,6 +11,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,6 +31,13 @@ public class JwtFilter extends OncePerRequestFilter {
     private final ObjectMapper objectMapper;
 
     @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getRequestURI();
+        return Arrays.stream(SecurityPaths.PERMIT_ALL)
+                .anyMatch(path::startsWith);
+    }
+
+    @Override
     protected void doFilterInternal(
             @NonNull HttpServletRequest request,
             @NonNull HttpServletResponse response,
@@ -38,7 +47,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
         // 토큰이 없는 경우
         if (tokenOpt.isEmpty()) {
-            filterChain.doFilter(request, response);
+            sendErrorResponse(response, EMPTY_TOKEN);
             return;
         }
 
