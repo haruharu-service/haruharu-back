@@ -12,10 +12,39 @@ import org.springframework.data.repository.query.Param;
 
 public interface ProblemJpaRepository extends JpaRepository<Problem, Long> {
 
-    Optional<Problem> findFirstByCategoryTopicIdAndDifficultyAndStatusOrderByProblemAtDesc(
-            Long categoryTopicId,
-            ProblemDifficulty difficulty,
-            EntityStatus status
+    // NOTE: LIMIT 1 is Hibernate 6.x JPQL extension - used intentionally
+    @Query("""
+            SELECT p FROM Problem p
+            WHERE p.categoryTopic.id = :categoryTopicId
+              AND p.difficulty = :difficulty
+              AND p.status = :status
+            ORDER BY (
+                SELECT MAX(dp.assignedAt)
+                FROM DailyProblem dp
+                WHERE dp.problem.id = p.id
+                  AND dp.status = :status
+            ) ASC NULLS FIRST
+            LIMIT 1
+            """)
+    Optional<Problem> findLeastRecentlyAssignedProblem(
+            @Param("categoryTopicId") Long categoryTopicId,
+            @Param("difficulty") ProblemDifficulty difficulty,
+            @Param("status") EntityStatus status
+    );
+
+    @Query("""
+            SELECT p.title FROM Problem p
+            WHERE p.categoryTopic.id = :categoryTopicId
+              AND p.difficulty = :difficulty
+              AND p.status = :status
+              AND p.problemAt >= :since
+            ORDER BY p.problemAt DESC
+            """)
+    List<String> findRecentTitlesByCategoryTopicIdAndDifficulty(
+            @Param("categoryTopicId") Long categoryTopicId,
+            @Param("difficulty") ProblemDifficulty difficulty,
+            @Param("status") EntityStatus status,
+            @Param("since") LocalDate since
     );
 
     // NOTE: LIMIT :limit OFFSET :offset는 표준 JPQL 문법이 아님.  "Hibernate 6.x 환경엔 작동함으로 의도적으로 사용"

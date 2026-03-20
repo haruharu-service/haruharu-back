@@ -1,5 +1,7 @@
 package org.kwakmunsu.haruhana.domain.problem.service;
 
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.kwakmunsu.haruhana.domain.problem.enums.ProblemDifficulty;
@@ -127,6 +129,22 @@ public enum Prompt {
         return template
                 .replace("{category}", categoryName)
                 .replace("{difficulty}", translateDifficulty(difficulty));
+    }
+
+    /**
+     * 카테고리와 난이도를 주입하고, 최근 출제된 문제 제목을 포함하여 중복 방지 프롬프트 생성
+     */
+    public String generate(String categoryName, ProblemDifficulty difficulty, List<String> recentTitles) {
+        String base = generate(categoryName, difficulty);
+        if (recentTitles == null || recentTitles.isEmpty()) {
+            return base;
+        }
+        String titleList = recentTitles.stream()
+                .map(t -> "- " + t)
+                .collect(Collectors.joining("\n"));
+        return base + "\n\n## 중복 방지 지침\n\n"
+                + "아래는 최근에 이미 출제된 문제 제목입니다. 이와 동일하거나 유사한 주제는 피하고 반드시 다른 개념의 질문을 생성해주세요:\n\n"
+                + titleList + "\n";
     }
 
     /**

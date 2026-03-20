@@ -30,6 +30,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class ProblemGenerator {
 
+    private static final int RECENT_DAYS_LIMIT = 30;
+
     private final MemberReader memberReader;
     private final ChatService chatService;
     private final ProblemJpaRepository problemJpaRepository;
@@ -140,7 +142,14 @@ public class ProblemGenerator {
     private Problem generateAndSaveProblem(ProblemGenerationGroup group, LocalDate problemAt) {
         ProblemGenerationKey key = group.key();
 
-        ProblemResponse problemResponse = getProblemToAi(key.categoryTopicName(), key.difficulty());
+        List<String> recentTitles = problemJpaRepository.findRecentTitlesByCategoryTopicIdAndDifficulty(
+                key.categoryTopicId(),
+                key.difficulty(),
+                EntityStatus.ACTIVE,
+                problemAt.minusDays(RECENT_DAYS_LIMIT)
+        );
+
+        ProblemResponse problemResponse = getProblemToAi(key.categoryTopicName(), key.difficulty(), recentTitles);
         validateProblemResponse(problemResponse);
 
         Problem saved = problemJpaRepository.save(Problem.create(
@@ -168,6 +177,12 @@ public class ProblemGenerator {
         return chatService.sendPrompt(prompt, ProblemResponse.class);
     }
 
+    private ProblemResponse getProblemToAi(String categoryTopicName, ProblemDifficulty difficulty, List<String> recentTitles) {
+        String prompt = Prompt.V2_PROMPT.generate(categoryTopicName, difficulty, recentTitles);
+
+        return chatService.sendPrompt(prompt, ProblemResponse.class);
+    }
+
     private void assignBackupProblem(
             Long categoryTopicId,
             String categoryTopicName,
@@ -175,10 +190,8 @@ public class ProblemGenerator {
             List<Member> members,
             LocalDate targetDate
     ) {
-        problemJpaRepository.findFirstByCategoryTopicIdAndDifficultyAndStatusOrderByProblemAtDesc(categoryTopicId,
-                difficulty,
-                EntityStatus.ACTIVE
-        ).ifPresentOrElse(backup -> {
+        problemJpaRepository.findLeastRecentlyAssignedProblem(categoryTopicId, difficulty, EntityStatus.ACTIVE)
+                .ifPresentOrElse(backup -> {
                     dailyProblemManager.assignDailyProblemToMembers(backup, members, targetDate);
                     log.info("[ProblemGenerator] 백업 문제 할당 완료 - 카테고리: {}, 난이도: {}, 회원 수: {}", categoryTopicName, difficulty, members.size());
                 },
